@@ -7,7 +7,7 @@ class Toy {
 private:
     string name;
 public:
-    explicit Toy(string inName) : name(std::move(inName)) {}
+    explicit Toy(string inName) : name(move(inName)) {}
 
     Toy() : Toy("Some toy") {}
 };
@@ -35,7 +35,7 @@ private:
 
 public:
 
-    explicit shared_ptr_toy(Toy &toy) {
+    explicit shared_ptr_toy(const Toy &toy) {
         counter = new int(1);
         obj = new Toy(toy);
     }
@@ -47,10 +47,6 @@ public:
 
     shared_ptr_toy() : shared_ptr_toy("Some toy") {}
 
-    ~shared_ptr_toy() {
-        decrement_refs();
-    }
-
     shared_ptr_toy(const shared_ptr_toy &other) {
         obj = other.obj;
         counter = other.counter;
@@ -59,13 +55,17 @@ public:
         }
     }
 
+    ~shared_ptr_toy() {
+        decrement_refs();
+    }
+
     shared_ptr_toy &operator=(const shared_ptr_toy &other) {
         if (this == &other) {
             return *this;
         }
 
         if (obj != nullptr) {
-            this->reset();
+            decrement_refs();
         }
 
         isEmpty = other.isEmpty;
@@ -109,7 +109,6 @@ int main() {
     shared_ball.reset();
     shared_ball.reset();
     shared_ball.reset();
-
 
     return 0;
 }
